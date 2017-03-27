@@ -1,0 +1,13 @@
+{
+  "name": "battery-level-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+  	"twit": "~2.2.5",
+  	"node-tesseract": "~0.2.7",
+  	"uuid": "~3.0.1"
+  }
+}
