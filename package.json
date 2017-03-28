@@ -5,6 +5,9 @@
   "main": "index.js",
   "author": "",
   "license": "ISC",
+  "scripts": {
+  	"start": "node --no-deprecation index.js"
+  },
   "dependencies": {
   	"twit": "~2.2.5",
   	"node-tesseract": "~0.2.7",
