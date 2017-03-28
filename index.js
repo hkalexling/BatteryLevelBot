@@ -1,4 +1,4 @@
-const tweet_interval_min = 5;
+const tweet_interval_min = 15;
 const threshold_battery = 20;
 const threshold_aspect_ratio = 0.75;
 const track_keywork = 'i';
