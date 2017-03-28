@@ -64,20 +64,24 @@ stream.on('tweet', tweet => {
 					
 					tempFile(m.media_url, (path, del) => {
 						ocr.process(path, (err, percentage) => {
-							del();
-							if (err) {
-								console.log('err: ', err);
-							}
-							if (percentage) {
-
-								var num = parseInt(percentage.replace('%', ''));
-								if (num <= threshold_battery){
-
-									reply = getReply(tweet.id_str, num, tweet.user.screen_name);
-									console.log('reply added: ', reply);
-
+							del(deleteErr => {
+								if (err) {
+									console.log('process error: ', err);
 								}
-							}
+								if (deleteErr){
+									console.log('delete error: ', deleteErr);
+								}
+								if (percentage) {
+
+									var num = parseInt(percentage.replace('%', ''));
+									if (num <= threshold_battery){
+
+										reply = getReply(tweet.id_str, num, tweet.user.screen_name);
+										console.log('reply added: ', reply);
+
+									}
+								}
+							});
 						});
 					});
 
@@ -91,8 +95,8 @@ stream.on('tweet', tweet => {
 function tempFile(url, handler){
 	var savePath = path.join(os.tmpdir(), uuid());
 	var writeStream = fs.createWriteStream(savePath);
-	var del = function(){
-		fs.unlink(savePath);
+	var del = function(h){
+		fs.unlink(savePath, h);
 	}
 	request(url).pipe(writeStream).on('close', () => {
 		handler(savePath, del);
