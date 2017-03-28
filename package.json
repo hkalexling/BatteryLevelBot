@@ -11,6 +11,7 @@
   "dependencies": {
   	"twit": "~2.2.5",
   	"node-tesseract": "~0.2.7",
-  	"uuid": "~3.0.1"
+  	"uuid": "~3.0.1",
+  	"sharp": "~0.17.2"
   }
 }

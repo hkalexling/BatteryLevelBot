@@ -11,6 +11,7 @@ var path = require('path');
 var uuid = require('uuid/v1');
 var secret = require('./secret');
 var ocr = require('./ocr');
+var croper = require('./croper');
 
 var T = new Twit(secret.twitter);
 
@@ -24,7 +25,6 @@ setInterval(() => {
 		status: reply.msg,
 		in_reply_to_status_id: reply.id
 	}, (err, data, response) => {
-		reply = null;
 		if (err) {
 			console.log('failed to reply with error: ', err);
 		}
@@ -32,9 +32,10 @@ setInterval(() => {
 			console.log('replied!');
 		}
 		console.log('reply: ', reply);
+		reply = null;
 	});
 
-}, 1000 * 60 * tweet_interval_min); // minimum tweet interval: 15min
+}, 1000 * 60 * tweet_interval_min);
 
 stream.on('connect', req => {
 	console.log('stream connecting');
@@ -63,23 +64,29 @@ stream.on('tweet', tweet => {
 				if (smallSize.w / smallSize.h < threshold_aspect_ratio){
 					
 					tempFile(m.media_url, (path, del) => {
-						ocr.process(path, (err, percentage) => {
+						croper.crop(path, (cropErr, newPath, newDel) => {
 							del(deleteErr => {
-								if (err) {
-									console.log('process error: ', err);
-								}
-								if (deleteErr){
-									console.log('delete error: ', deleteErr);
-								}
-								if (percentage) {
+								if (deleteErr) return console.log('delete error: ', deleteErr);
+								if (cropErr) return console.log('crop error: ', cropErr);
+								if (newPath && newDel){
+									ocr.process(newPath, (err, percentage) => {
+										newDel(deleteErr => {
+											
+											if (deleteErr) return console.log('delete error: ', deleteErr);
+											if (err) return console.log('pricess error: ', err);
+											if (percentage){
 
-									var num = parseInt(percentage.replace('%', ''));
-									if (num <= threshold_battery){
+												var num = parseInt(percentage.replace('%', ''));
+												if (num <= threshold_battery){
 
-										reply = getReply(tweet.id_str, num, tweet.user.screen_name);
-										console.log('reply added: ', reply);
+													reply = getReply(tweet.id_str, num, tweet.user.screen_name);
+													console.log('reply added: ', reply);
 
-									}
+												}
+
+											}
+										});
+									});
 								}
 							});
 						});
